@@ -1960,11 +1960,11 @@ const CONFIG = {
        false = OFF
        true  = ON
 
-       ABHI FALSE RAKHA HAI.
+       24-hour limit is ON.
     ================================================ */
 
     ONE_TIME_ONLY:
-        false
+        true
 
 };
 
@@ -2180,26 +2180,52 @@ function openScratch(){
 
 
     /*
-       Optional one-time protection
+       24-HOUR SCRATCH PROTECTION
+       Free/browser-based protection using localStorage.
+       The same browser/device can scratch once every 24 hours.
     */
 
     if(
         CONFIG.ONE_TIME_ONLY
     ){
 
-        const alreadyPlayed =
-            localStorage.getItem(
-                "mla_scratch_played"
+        const lastPlayed =
+            Number(
+                localStorage.getItem(
+                    "mla_scratch_last_played"
+                ) || 0
             );
 
+        const twentyFourHours =
+            24 * 60 * 60 * 1000;
 
         if(
-            alreadyPlayed ===
-            "true"
+            lastPlayed &&
+            (Date.now() - lastPlayed) < twentyFourHours
         ){
 
+            const remaining =
+                twentyFourHours -
+                (Date.now() - lastPlayed);
+
+            const hours =
+                Math.floor(
+                    remaining /
+                    (60 * 60 * 1000)
+                );
+
+            const minutes =
+                Math.floor(
+                    (remaining %
+                    (60 * 60 * 1000)) /
+                    (60 * 1000)
+                );
+
             alert(
-                "This scratch card has already been used on this device."
+                "🎁 Scratch Card already used!\n\n" +
+                "⏰ Please come back after " +
+                hours + "h " +
+                minutes + "m."
             );
 
             return;
@@ -2579,8 +2605,8 @@ function scratch(
         ){
 
             localStorage.setItem(
-                "mla_scratch_played",
-                "true"
+                "mla_scratch_last_played",
+                Date.now().toString()
             );
 
         }
